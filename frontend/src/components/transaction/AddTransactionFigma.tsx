@@ -300,23 +300,11 @@ export default function AddTransactionFigma() {
 		bootstrapAuth().then(() => {
 			const now = new Date();
 			const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
-			getFunds(currentMonth).then(async (res) => {
-				if (res.ok) {
-					if (res.data && res.data.length > 0) {
-						setFunds(res.data);
-					} else {
-						// Funds list is empty -> auto-initialize monthly funds
-						console.log('[Zuno] Funds empty on transaction screen. Auto-initializing...');
-						const createRes = await createMonthlyFunds({
-							month: currentMonth,
-							monthlyIncome: 5000000,
-							residenceType: 'dorm',
-						});
-						if (createRes.ok && createRes.data) {
-							setFunds(createRes.data);
-						}
-					}
+			getFunds(currentMonth).then((res) => {
+				if (res.ok && res.data && res.data.length > 0) {
+					setFunds(res.data);
 				}
+				// If no funds exist yet, wait for user to add their first income
 			});
 		});
 	}, []);
@@ -383,6 +371,31 @@ export default function AddTransactionFigma() {
 			return;
 		}
 
+		let activeFunds = funds;
+
+		// Nếu chưa có quỹ và đây là giao dịch thu nhập → tạo quỹ từ số tiền income này
+		if (activeFunds.length === 0 && selectedTransactionType === 'income') {
+			const now = new Date();
+			const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+			const createRes = await createMonthlyFunds({
+				month: currentMonth,
+				monthlyIncome: amount,
+				residenceType: 'dorm',
+			});
+			if (!createRes.ok || !createRes.data || createRes.data.length === 0) {
+				alert('Không thể khởi tạo quỹ. Vui lòng thử lại!');
+				return;
+			}
+			activeFunds = createRes.data;
+			setFunds(createRes.data);
+		}
+
+		// Nếu chưa có quỹ và đây là chi tiêu → yêu cầu nhập income trước
+		if (activeFunds.length === 0 && selectedTransactionType === 'expense') {
+			alert('Bạn chưa có quỹ tháng này. Hãy thêm thu nhập (Income) trước để khởi tạo ngân sách!');
+			return;
+		}
+
 		// Ánh xạ danh mục sang loại quỹ tương ứng
 		const CATEGORY_TO_FUND_TYPE: Record<string, string> = {
 			'Food and Drinks': 'food',
@@ -393,7 +406,7 @@ export default function AddTransactionFigma() {
 		};
 
 		const fundType = CATEGORY_TO_FUND_TYPE[selectedCategory] || 'food';
-		const matchedFund = funds.find((f) => f.fundType === fundType) || funds[0];
+		const matchedFund = activeFunds.find((f) => f.fundType === fundType) || activeFunds[0];
 
 		if (!matchedFund) {
 			alert('Không tìm thấy quỹ hợp lệ cho giao dịch này!');

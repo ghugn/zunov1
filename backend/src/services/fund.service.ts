@@ -47,19 +47,26 @@ export async function createMonthlyFunds(
     throw new Error('Funds for this month already exist');
   }
 
-  // Get template for this residence type
+  // Get template for this residence type, fall back to hardcoded defaults if DB is not seeded
   const template = await prisma.fundTemplate.findFirst({
     where: { residenceType, isDefault: true },
   });
-  if (!template) throw new Error('Fund template not found');
 
-  const percentages: Record<string, number> = {
-    living: Number(template.livingPct),
-    food: Number(template.foodPct),
-    growth: Number(template.growthPct),
-    experience: Number(template.experiencePct),
-    future: Number(template.futurePct),
+  const DEFAULT_PERCENTAGES: Record<string, Record<string, number>> = {
+    rent: { living: 40, food: 20, growth: 15, experience: 10, future: 15 },
+    dorm: { living: 7.5, food: 65, growth: 10, experience: 7.5, future: 10 },
   };
+
+  const percentages: Record<string, number> = template
+    ? {
+        living: Number(template.livingPct),
+        food: Number(template.foodPct),
+        growth: Number(template.growthPct),
+        experience: Number(template.experiencePct),
+        future: Number(template.futurePct),
+      }
+    : (DEFAULT_PERCENTAGES[residenceType] ?? DEFAULT_PERCENTAGES['dorm']);
+
 
   // Tính allocated cho từng quỹ
   const allocations: Record<string, bigint> = {};
