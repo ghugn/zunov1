@@ -1,7 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import type { ComponentType, ReactNode } from "react";
+import { bootstrapAuth } from "@/lib/api/auth";
+import { apiClient } from "@/lib/apiClient";
 import {
 	ArrowLeft,
 	ChevronRight,
@@ -30,7 +33,7 @@ type RowItem = {
 	onClick?: () => void;
 };
 
-const profile = {
+const defaultProfile = {
 	name: "abc1234",
 	email: "abc1234@gmail.com",
 	initial: "A",
@@ -186,6 +189,32 @@ function DestructiveRow({ item }: { item: RowItem }) {
 
 export default function ProfilePage() {
 	const router = useRouter();
+	const [profile, setProfile] = useState(defaultProfile);
+
+	useEffect(() => {
+		let isMounted = true;
+		async function loadUserProfile() {
+			try {
+				const ok = await bootstrapAuth();
+				if (!ok || !isMounted) return;
+
+				const me = await apiClient.get<{ fullName: string; email: string }>("/api/auth/me");
+				if (isMounted && me) {
+					setProfile({
+						name: me.fullName || defaultProfile.name,
+						email: me.email || defaultProfile.email,
+						initial: (me.fullName || defaultProfile.name)[0].toUpperCase(),
+					});
+				}
+			} catch (error) {
+				console.error("Failed to load user profile:", error);
+			}
+		}
+		loadUserProfile();
+		return () => {
+			isMounted = false;
+		};
+	}, []);
 
 	const handleLogout = () => {
 		if (typeof window !== "undefined") {

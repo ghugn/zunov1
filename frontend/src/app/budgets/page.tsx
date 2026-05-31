@@ -305,7 +305,7 @@ function BudgetNav() {
     { href: "/analytics", label: "Analytics", icon: BarChart2, active: false },
     { href: "/add-transaction", label: "Add", icon: Plus, active: false, action: true },
     { href: "/budgets", label: "Budget", icon: Wallet, active: true },
-    { href: "/login", label: "Profile", icon: User, active: false },
+    { href: "/profile", label: "Profile", icon: User, active: false },
   ];
 
   return (

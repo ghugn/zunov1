@@ -13,7 +13,7 @@ export default function BottomNav() {
     { icon: BarChart2, label: "Thống kê", href: "/analytics", id: "analytics" },
     { icon: Plus, label: "Thêm", href: "/add-transaction", id: "add", isAction: true },
     { icon: Wallet, label: "Ngân sách", href: "/budgets", id: "budget" },
-    { icon: User, label: "Cá nhân", href: "/login", id: "profile" },
+    { icon: User, label: "Cá nhân", href: "/profile", id: "profile" },
   ];
 
   return (

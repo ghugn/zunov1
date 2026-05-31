@@ -713,7 +713,7 @@ export default function IPhone1415Pro1() {
         <Link href="/budgets" aria-label="Budget" className="flex size-[38px] items-center justify-center rounded-full text-[#546982] drop-shadow-[-1px_-1px_1px_rgba(0,0,0,0.25)] transition-colors hover:bg-[#edf4ff] hover:text-[#174f84]">
           <Wallet className="size-[27px]" strokeWidth={2.25} />
         </Link>
-        <Link href="/login" aria-label="Profile" className="flex size-[38px] items-center justify-center rounded-full text-[#546982] drop-shadow-[-1px_-1px_1px_rgba(0,0,0,0.25)] transition-colors hover:bg-[#edf4ff] hover:text-[#174f84]">
+        <Link href="/profile" aria-label="Profile" className="flex size-[38px] items-center justify-center rounded-full text-[#546982] drop-shadow-[-1px_-1px_1px_rgba(0,0,0,0.25)] transition-colors hover:bg-[#edf4ff] hover:text-[#174f84]">
           <User className="size-[26px]" strokeWidth={2.4} />
         </Link>
       </nav>
